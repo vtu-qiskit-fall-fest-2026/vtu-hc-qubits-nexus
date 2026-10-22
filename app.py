@@ -1,13 +1,107 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from time import perf_counter
 
 from scheduler import calculate_metrics, schedule_greedy
+
+try:
+    from qaoa_solver import solve_qaoa
+except Exception as exc:  # pragma: no cover - app should still work if QAOA is unavailable.
+    solve_qaoa = None
+    qaoa_import_error = exc
+else:
+    qaoa_import_error = None
 
 
 st.set_page_config(page_title="Q-Charge Fair", layout="wide")
 st.title("Q-Charge Fair")
 st.caption("A small, grid-aware EV charging scheduling demo")
+
+
+def build_tiny_demo_scenario():
+    return {
+        "grid_limit_kw": 1.0,
+        "n_slots": 1,
+        "slot_minutes": 60,
+        "vehicles": [
+            {
+                "id": "EV1",
+                "energy_needed_kwh": 1.0,
+                "departure_slot": 1,
+                "priority": 2,
+                "max_charge_kw": 1.0,
+            },
+            {
+                "id": "EV2",
+                "energy_needed_kwh": 1.0,
+                "departure_slot": 1,
+                "priority": 1,
+                "max_charge_kw": 1.0,
+            },
+        ],
+    }
+
+
+def run_qaoa_comparison():
+    scenario = build_tiny_demo_scenario()
+
+    classical_start = perf_counter()
+    classical_result = schedule_greedy(scenario)
+    classical_runtime = perf_counter() - classical_start
+    classical_metrics = calculate_metrics(scenario, classical_result)
+
+    result = {
+        "scenario": scenario,
+        "classical": {
+            "result": classical_result,
+            "metrics": classical_metrics,
+            "runtime_seconds": classical_runtime,
+        },
+    }
+
+    if solve_qaoa is None:
+        result["qaoa"] = {
+            "error": (
+                "QAOA is unavailable in this environment. "
+                f"Import failed: {qaoa_import_error}"
+            )
+        }
+        return result
+
+    try:
+        qaoa_start = perf_counter()
+        qaoa_schedule = solve_qaoa()
+        qaoa_runtime = perf_counter() - qaoa_start
+    except Exception as exc:  # pragma: no cover - failure should not crash the app.
+        result["qaoa"] = {
+            "error": f"QAOA failed to solve the tiny scenario: {exc}",
+            "runtime_seconds": None,
+        }
+        return result
+
+    remaining = {
+        vehicle["id"]: float(vehicle["energy_needed_kwh"])
+        for vehicle in scenario["vehicles"]
+    }
+    for item in qaoa_schedule:
+        vehicle_id = item["vehicle"]
+        remaining[vehicle_id] = max(0.0, remaining.get(vehicle_id, 0.0) - float(item["energy_kwh"]))
+
+    qaoa_result = {
+        "schedule": qaoa_schedule,
+        "remaining_kwh": remaining,
+    }
+    result["qaoa"] = {
+        "result": qaoa_result,
+        "metrics": calculate_metrics(scenario, qaoa_result),
+        "runtime_seconds": qaoa_runtime,
+    }
+    return result
+
+
+if "qaoa_demo_result" not in st.session_state:
+    st.session_state.qaoa_demo_result = None
 
 with st.sidebar:
     st.header("Scenario")
@@ -51,6 +145,10 @@ with st.sidebar:
             "priority": int(priority),
             "max_charge_kw": max_kw,
         })
+
+    st.markdown("---")
+    if st.button("Run QAOA comparison", key="run_qaoa_comparison"):
+        st.session_state.qaoa_demo_result = run_qaoa_comparison()
 
 scenario = {
     "grid_limit_kw": grid_limit_kw,
@@ -112,3 +210,32 @@ if st.button("Generate schedule", type="primary"):
     st.caption(f"Scheduler runtime: {result['runtime_seconds']:.6f} seconds")
 else:
     st.info("Adjust the scenario in the sidebar, then click **Generate schedule**.")
+
+if st.session_state.qaoa_demo_result is not None:
+    st.markdown("---")
+    st.subheader("Tiny simulator demo")
+    st.caption(
+        "Fixed tiny scenario: 2 EVs, 1 time slot, 1 kWh grid limit, priorities 2 and 1. "
+        "This is a prototype comparison only, not a claim of quantum advantage."
+    )
+
+    demo = st.session_state.qaoa_demo_result
+    classical = demo["classical"]
+    qaoa = demo.get("qaoa", {})
+
+    left, right = st.columns(2)
+    with left:
+        st.subheader("Classical greedy scheduler")
+        st.dataframe(pd.DataFrame(classical["result"]["schedule"]), use_container_width=True)
+        st.metric("Runtime", f"{classical['runtime_seconds']:.6f} seconds")
+        st.write(classical["metrics"])
+
+    with right:
+        st.subheader("QAOA prototype")
+        if "error" in qaoa:
+            st.warning(qaoa["error"])
+            st.metric("Runtime", "Not available")
+        else:
+            st.dataframe(pd.DataFrame(qaoa["result"]["schedule"]), use_container_width=True)
+            st.metric("Runtime", f"{qaoa['runtime_seconds']:.6f} seconds")
+            st.write(qaoa["metrics"])
