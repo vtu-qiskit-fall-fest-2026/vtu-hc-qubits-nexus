@@ -46,9 +46,9 @@
 
 | # | Name | GitHub Username | Role |
 | :-- | :--- | :--- | :--- |
-| 1 | _Add your name_ | _your-github-username_ | _Team Lead_ |
-| 2 | _Add your name_ | _your-github-username_ | _Developer_ |
-| 3 | _Add your name_ | _your-github-username_ | _Developer_ |
+| 1 | _Aliya Mulla_ | _aliyamulla098-spec_ | _Team Lead_ |
+| 2 | _Arsin Imtiyaz Karadagi_ | _Arsinkaradagi_ | _Developer_ |
+| 3 | _Zaveerya Mulla_ | _ZaveeryaMulla_ | _Developer_ |
 
 <!--
 Optional: add a plain list instead of the table above.
@@ -66,11 +66,11 @@ who experiences it, and why does it matter. Link to the official problem
 statement from the brief if one applies.
 -->
 
-**Problem:** _Describe the problem in 2–3 sentences._
+**Problem:** _Shared EV charging facilities have limited grid capacity, while vehicles have different energy requests, priorities, and departure times. A charging schedule must allocate available capacity without exceeding the grid limit and should make clear how much demand each vehicle receives._
 
-**Why it matters:** _Explain the impact or opportunity._
+**Why it matters:** _Poor scheduling can create high demand during a time slot or leave some vehicles short of their requested energy. Comparing scheduling approaches can help facility operators understand these trade-offs._
 
-**Track / Category:** _Online / Offline · Track 1 / Track 2 · <domain>_
+**Track / Category:** _Online · Track 6 · Quantum Applications for Climate Change and Sustainability_
 
 ---
 
@@ -81,11 +81,11 @@ Describe your solution. Keep it concrete: the core idea, the user flow, and
 the quantum/ML technique you are applying.
 -->
 
-**Solution:** _In 2–3 sentences, describe what you built._
+**Solution:** _Q-Charge Fair is a Streamlit prototype for exploring EV charging scenarios and viewing schedules from a classical greedy scheduler. It also includes a small QAOA demonstration that solves a fixed binary charging example using Qiskit’s local statevector simulator._
 
-**Key idea:** _The one-line technical summary of your approach._
+**Key idea:** _Compare a classical schedule with a small QAOA candidate while respecting charging and grid-capacity constraints._
 
-**Why this works:** _How your approach addresses the problem statement._
+**Why this works:** _The prototype makes scheduling trade-offs visible and provides a small example of encoding EV charging decisions as a binary optimization problem. It investigates QAOA without claiming quantum advantage._
 
 ---
 
@@ -103,11 +103,11 @@ flowchart LR
     D --> E[Output]
 ```
 
-1. **Input** — _what data goes in and in what format_
-2. **Preprocessing** — _cleaning, feature extraction, encoding_
-3. **Quantum core** — _the circuit, ansatz, or algorithm used_
-4. **Post-processing** — _decoding, measurement, scoring_
-5. **Output** — _what the user finally gets_
+1. **Input** — _The Streamlit interface accepts charging scenario values such as grid capacity and vehicle requirements._
+2. **Preprocessing** — _The QAOA example uses two EVs, one time slot, and binary 1 kWh charging decisions. It is a fixed demonstration and does not represent every interactive scenario._
+3. **Quantum core** — Qiskit QAOA with one layer (`reps=1`), COBYLA, and the local `StatevectorSampler`. The small model includes vehicle energy-request constraints, a grid limit, and priority-weighted charging rewards.
+4. **Post-processing** — _The selected binary values are decoded into charging assignments_
+5. **Output** — _The app displays schedules and available performance summaries for the demo. The QAOA result is a candidate from a small simulator example, not evidence of quantum advantage._
 
 ---
 
@@ -116,11 +116,12 @@ flowchart LR
 | Layer | Technology |
 | :--- | :--- |
 | Language | Python 3.11+ |
-| Quantum SDK | Qiskit `>=1.0`, Qiskit Aer, Qiskit Runtime |
-| Optimisation | Qiskit Optimization / COBYLA / SPSA |
-| Simulation | AerSimulator (statevector / noisemodel) |
-| Environment | JupyterLab / VS Code, `venv` |
+| Quantum SDK | Qiskit |
+| Optimisation | Qiskit Optimization , COBYLA , Qiskit Algorithms |
+| Web App | Streamlit |
+| Environment | VS Code, `venv` |
 | Version control | Git + GitHub |
+| Data and charts | pandas, plotly |
 
 ---
 
@@ -128,21 +129,13 @@ flowchart LR
 
 ```text
 vtu-hc-qubits-nexus/
-├── README.md              # This file
-├── requirements.txt       # Python dependencies
-├── pyproject.toml         # Project metadata (optional)
+├── README.md
+├── requirements.txt
 ├── .gitignore
-├── notebooks/             # Jupyter notebooks for experiments
-│   └── exploration.ipynb
-├── src/
-│   ├── __init__.py
-│   ├── circuit.py         # Quantum circuit construction
-│   ├── optimizer.py       # Optimization loop
-│   └── main.py            # Entry point
-├── data/                  # Datasets (use Git LFS for large files)
-├── tests/                 # Unit tests
-│   └── test_circuit.py
-└── docs/                  # Notes, diagrams, reports
+├── app.py
+├── scheduler.py
+├── qaoa_solver.py
+└── qcharge_qaoa_circuit.png
 ```
 
 ---
@@ -180,21 +173,9 @@ pip install -r requirements.txt
 ### 4. Run
 
 ```bash
-python -m src.main
+python -m streamlit run app.py
 ```
-
-Or launch the notebook workflow:
-
-```bash
-jupyter lab
-```
-
-### 5. Run the tests
-
-```bash
-pytest -q
-```
-
+Open the local URL shown in the terminal.
 ---
 
 ## 🔁 How to Push Code
