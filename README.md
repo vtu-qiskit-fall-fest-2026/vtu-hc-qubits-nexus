@@ -97,10 +97,10 @@ Walk through how it works. A simple pipeline diagram in text or Mermaid is ideal
 
 ```mermaid
 flowchart LR
-    A[Input Data] --> B[Preprocessing]
-    B --> C[Quantum Circuit / Model]
-    C --> D[Post-processing]
-    D --> E[Output]
+    A[User-defined scenario] --> B[Streamlit classical scheduler]
+    B --> C[Schedule and available metrics]
+    C --> D[Qiskit QAOA]
+    D --> E[Candidate schedule]
 ```
 
 1. **Input** — _The Streamlit interface accepts charging scenario values such as grid capacity and vehicle requirements._
@@ -117,7 +117,7 @@ flowchart LR
 | :--- | :--- |
 | Language | Python 3.11+ |
 | Quantum SDK | Qiskit |
-| Optimisation | Qiskit Optimization , COBYLA , Qiskit Algorithms |
+| Optimisation | Qiskit Optimization ,Qiskit Algorithms ,COBYLA  |
 | Web App | Streamlit |
 | Environment | VS Code, `venv` |
 | Version control | Git + GitHub |
@@ -135,6 +135,7 @@ vtu-hc-qubits-nexus/
 ├── app.py
 ├── scheduler.py
 ├── qaoa_solver.py
+├── qcharge_qaoa_circuit.png
 └── requirements.txt
 ```
 
