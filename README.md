@@ -130,12 +130,12 @@ flowchart LR
 ```text
 vtu-hc-qubits-nexus/
 ├── README.md
-├── requirements.txt
-├── .gitignore
+├── SUBMISSION_LINKS.md
+├── Qubits_Nexus_VTU_QFF_HC_0029.pptx
 ├── app.py
 ├── scheduler.py
 ├── qaoa_solver.py
-└── qcharge_qaoa_circuit.png
+└── requirements.txt
 ```
 
 ---
