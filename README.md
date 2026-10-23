@@ -83,7 +83,7 @@ the quantum/ML technique you are applying.
 
 **Solution:** _Q-Charge Fair is a Streamlit prototype for exploring EV charging scenarios and viewing schedules from a classical greedy scheduler. It also includes a small QAOA demonstration that solves a fixed binary charging example using Qiskit’s local statevector simulator._
 
-**Key idea:** _Compare a classical schedule with a small QAOA candidate while respecting charging and grid-capacity constraints._
+**Key idea:** Present user-configurable classical schedules alongside a separate QAOA demonstration using a fixed, small charging model.
 
 **Why this works:** _The prototype makes scheduling trade-offs visible and provides a small example of encoding EV charging decisions as a binary optimization problem. It investigates QAOA without claiming quantum advantage._
 
@@ -97,10 +97,10 @@ Walk through how it works. A simple pipeline diagram in text or Mermaid is ideal
 
 ```mermaid
 flowchart LR
-    A[User-defined scenario] --> B[Streamlit classical scheduler]
-    B --> C[Schedule and available metrics]
-    C --> D[Qiskit QAOA]
-    D --> E[Candidate schedule]
+  A[User-defined scenario] --> B[Streamlit classical scheduler]
+  B --> C[Schedule and available metrics]
+  D[Fixed two-EV, one-slot model] --> E[Qiskit QAOA]
+  E --> F[Candidate schedule]
 ```
 
 1. **Input** — _The Streamlit interface accepts charging scenario values such as grid capacity and vehicle requirements._
@@ -117,7 +117,7 @@ flowchart LR
 | :--- | :--- |
 | Language | Python 3.11+ |
 | Quantum SDK | Qiskit |
-| Optimisation | Qiskit Optimization ,Qiskit Algorithms ,COBYLA  |
+| Optimisation | Qiskit Optimization, Qiskit Algorithms (QAOA, COBYLA) |
 | Web App | Streamlit |
 | Environment | VS Code, `venv` |
 | Version control | Git + GitHub |
