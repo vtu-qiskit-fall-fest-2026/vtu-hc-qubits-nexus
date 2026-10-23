@@ -138,7 +138,8 @@ vtu-hc-qubits-nexus/
 ├── qcharge_qaoa_circuit.png
 └── requirements.txt
 ```
-
+**Presentation:** [Download the project presentation](./Qubits_Nexus_VTU_QFF_HC_0029.pptx)
+**Demo video:** [Watch the Q-Charge Fair demo](https://youtu.be/FP2uEZ_4L3g)
 ---
 
 ## 🚀 How to Run
